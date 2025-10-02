@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentice - AI-Powered Career Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.agent .message-content {
+            background: white;
+            border: 1px solid #e5e7eb;
+            color: #1f2937;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .typing-indicator span {
+            height: 10px;
+            width: 10px;
+            background: #667eea;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .voice-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .voice-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .voice-button.listening {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .agent-card {
+            transition: all 0.3s;
+        }
+
+        .agent-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="glass-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-0"><i class="fas fa-robot text-primary"></i> Agentice</h1>
+                    <p class="text-muted mb-0">Your AI-Powered Career Assistant</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="status-badge status-active">
+                        <i class="fas fa-circle me-1"></i> Online
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- AI Chat & Voice Assistant -->
+            <div class="col-lg-8">
+                <div class="glass-card">
+                    <h4 class="mb-4">
+                        <i class="fas fa-comments text-primary"></i> AI Assistant
+                    </h4>
+                    
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message agent">
+                                <div class="message-content">
+                                    <strong>Agentice</strong>
+                                    <p class="mb-0 mt-1">Hello! I'm your AI career assistant. I can help you find jobs, optimize your resume, write cover letters, and manage applications. How can I help you today?</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="typing-indicator" id="typingIndicator">
+                            <span></span><span></span><span></span>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="text" id="chatInput" class="form-control form-control-lg" 
+                                   placeholder="Type your message or use voice..." />
+                            <button class="btn btn-primary px-4" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                            <button class="voice-button ms-2" id="voiceButton" onclick="toggleVoice()">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="glass-card">
+                    <h5 class="mb-3">Quick Actions</h5>
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary w-100" onclick="quickAction('search')">
+                                <i class="fas fa-search"></i> Search Jobs
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-success w-100" onclick="quickAction('resume')">
+                                <i class="fas fa-file-alt"></i> Optimize Resume
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-info w-100" onclick="quickAction('cover')">
+                                <i class="fas fa-envelope"></i> Write Cover Letter
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-warning w-100" onclick="quickAction('status')">
+                                <i class="fas fa-chart-line"></i> View Status
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats & Agents -->
+            <div class="col-lg-4">
+                <!-- Stats -->
+                <div class="glass-card">
+                    <h5 class="mb-3">Today's Activity</h5>
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="stats-number" id="appsToday">0</div>
+                            <small class="text-muted">Applications</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stats-number" id="interviews">0</div>
+                            <small class="text-muted">Interviews</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-number" id="responses">0</div>
+                            <small class="text-muted">Responses</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-number text-success" id="successRate">0%</div>
+                            <small class="text-muted">Success Rate</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Agents -->
+                <div class="glass-card">
+                    <h5 class="mb-3">Active AI Agents</h5>
+                    
+                    <div class="agent-card mb-3 p-3 bg-light rounded">
+                        <div class="d-flex align-items-center">
+                            <div class="agent-avatar bg-primary text-white">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div>
+                                <strong>Job Researcher</strong>
+                                <p class="text-muted mb-0 small">Finding opportunities...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="agent-card mb-3 p-3 bg-light rounded">
+                        <div class="d-flex align-items-center">
+                            <div class="agent-avatar bg-success text-white">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div>
+                                <strong>Resume Optimizer</strong>
+                                <p class="text-muted mb-0 small">Ready to optimize</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="agent-card mb-3 p-3 bg-light rounded">
+                        <div class="d-flex align-items-center">
+                            <div class="agent-avatar bg-info text-white">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <strong>Cover Letter Writer</strong>
+                                <p class="text-muted mb-0 small">Standing by</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="agent-card p-3 bg-light rounded">
+                        <div class="d-flex align-items-center">
+                            <div class="agent-avatar bg-warning text-white">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div>
+                                <strong>Application Manager</strong>
+                                <p class="text-muted mb-0 small">Monitoring applications</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto-Apply Toggle -->
+                <div class="glass-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Auto-Apply Mode</strong>
+                            <p class="text-muted mb-0 small">Autonomous job applications</p>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="autoApplyToggle" style="width: 3em; height: 1.5em;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/app.js"></script>
+</body>
+</html>
